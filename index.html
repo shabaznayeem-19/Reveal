@@ -67,6 +67,7 @@ button:disabled{opacity:.5}
   <div class="code" id="wcode"></div>
   <p class="sub" style="text-align:center">Send your partner the invite link. The game starts when they join.</p>
   <button id="share">Share invite link</button>
+  <p style="text-align:center;margin:10px 0 0"><a href="#" class="leave" style="color:var(--mute);font-size:14px">Leave game</a></p>
 </section>
 
 <section id="v-play" hidden>
@@ -87,6 +88,7 @@ button:disabled{opacity:.5}
     <div class="ans"><b id="n2"></b><span id="a2"></span></div>
     <button id="next">Next question</button>
   </div>
+<p style="text-align:center;margin:10px 0 0"><a href="#" class="leave" style="color:var(--mute);font-size:14px">Leave game</a></p>
 </section>
 
 <section id="v-end" hidden class="card">
@@ -212,6 +214,8 @@ $('share').onclick=async()=>{
   try{if(navigator.share){await navigator.share({title:'Reveal',text:text,url:link});return;}}catch(e){return;}
   try{await navigator.clipboard.writeText(link);$('share').textContent='Link copied!';}catch(e){prompt('Copy this link:',link);}
 };
+function leave(e){if(e)e.preventDefault();if(timer)clearInterval(timer);timer=null;store('gtk-code',null);code=null;show('v-home');}
+document.querySelectorAll('.leave').forEach(a=>a.onclick=leave);
 $('again').onclick=()=>{if(timer)clearInterval(timer);timer=null;store('gtk-code',null);code=null;show('v-home');};
 init();
 </script>
