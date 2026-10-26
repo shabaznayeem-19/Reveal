@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reveal</title>
+<style>
+:root{--bg:#fbf7f2;--card:#fff;--ink:#2a2230;--mute:#7a7080;--acc:#e0527a;--acc2:#f3d6df;--line:#e9e1e6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17131c;--card:#231d2b;--ink:#f3eef6;--mute:#a79cb0;--acc:#ff7fa3;--acc2:#3a2a35;--line:#352d3d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17131c;--card:#231d2b;--ink:#f3eef6;--mute:#a79cb0;--acc:#ff7fa3;--acc2:#3a2a35;--line:#352d3d;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+main{max-width:480px;margin:0 auto;padding:20px 18px 40px}
+h1{font-size:26px;margin:8px 0 4px}
+p.sub{color:var(--mute);margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px}
+label{display:block;font-size:14px;color:var(--mute);margin:0 0 6px}
+input,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px}
+textarea{min-height:110px;resize:vertical}
+button{font:inherit;font-weight:600;border:0;border-radius:12px;padding:13px 16px;width:100%;background:var(--acc);color:#fff;margin-top:10px;cursor:pointer}
+button.alt{background:var(--acc2);color:var(--ink)}
+button:disabled{opacity:.5}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.code{font-size:44px;letter-spacing:8px;font-weight:700;text-align:center;color:var(--acc);margin:6px 0}
+.q{font-size:22px;font-weight:650;line-height:1.3}
+.tag{font-size:13px;color:var(--mute);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.ans{border-left:4px solid var(--acc);padding:6px 12px;margin:10px 0;white-space:pre-wrap;word-break:break-word}
+.ans b{display:block;font-size:13px;color:var(--mute);font-weight:600}
+.err{color:#d33;font-size:14px;min-height:20px;margin-top:8px}
+.dots{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:16px}
+.dots i{display:block;height:100%;background:var(--acc);transition:width .3s}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<h1>💬 Reveal</h1>
+<p class="sub" id="sub">Two people, two phones, quick answers.</p>
+
+<section id="v-setup" hidden class="card">
+  <div class="q" style="font-size:19px">One-time setup</div>
+  <p class="sub" style="margin-top:8px">Paste your Firebase Realtime Database URL. Your partner won’t need to: the invite link carries it.</p>
+  <input id="dburl" placeholder="https://your-project-default-rtdb.firebaseio.com" autocapitalize="off" autocomplete="off">
+  <button id="savedb">Save</button>
+  <div class="err" id="err2"></div>
+</section>
+
+<section id="v-home" hidden>
+  <div class="card">
+    <label for="name">Your name</label>
+    <input id="name" maxlength="20" autocomplete="off">
+    <label for="len" style="margin-top:12px">Questions per game (for a new game)</label>
+    <select id="len" style="width:100%;font:inherit;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)"><option>10</option><option>15</option><option>20</option></select>
+    <button id="create">Start a new game</button>
+    <p class="sub" style="text-align:center;margin:14px 0 0">or join a friend’s game</p>
+    <label for="jcode" style="margin-top:8px">Game code</label>
+    <input id="jcode" maxlength="4" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase;letter-spacing:4px">
+    <button id="join" class="alt">Join game</button>
+    <div class="err" id="err"></div>
+    <p style="text-align:center;margin:6px 0 0"><a href="#" id="chdb" style="color:var(--mute);font-size:14px">Change database URL</a></p>
+  </div>
+</section>
+
+<section id="v-wait" hidden class="card">
+  <div class="tag">Your game code</div>
+  <div class="code" id="wcode"></div>
+  <p class="sub" style="text-align:center">Send your partner the invite link. The game starts when they join.</p>
+  <button id="share">Share invite link</button>
+</section>
+
+<section id="v-play" hidden>
+  <div class="dots"><i id="bar"></i></div>
+  <div class="card">
+    <div class="tag" id="qn"></div>
+    <div class="q" id="qt"></div>
+  </div>
+  <div id="p-answer" class="card" hidden>
+    <label for="mine">Your answer: a word or one line is fine (hidden until you both answer)</label>
+    <div id="opts"></div>
+    <div id="free"><textarea id="mine" maxlength="200" style="min-height:70px" placeholder="Type a short answer"></textarea>
+    <button id="submit">Submit answer</button></div>
+  </div>
+  <div id="p-wait" class="card" hidden><span id="wtxt"></span></div>
+  <div id="p-reveal" class="card" hidden>
+    <div class="ans"><b id="n1"></b><span id="a1"></span></div>
+    <div class="ans"><b id="n2"></b><span id="a2"></span></div>
+    <button id="next">Next question</button>
+  </div>
+</section>
+
+<section id="v-end" hidden class="card">
+  <div class="q">That’s all of them! 🎉</div>
+  <p class="sub" style="margin-top:8px">Hope you learned something new about each other.</p>
+  <button id="again">Back to start</button>
+</section>
+</main>
+
+<script>
+const BANK=[["Morning person or night owl?", "Morning", "Night"], ["Coffee or tea?", "Coffee", "Tea", "Neither"], ["Beach or mountains?", "Beach", "Mountains"], ["Dogs or cats?", "Dogs", "Cats", "Both"], ["Introvert or extrovert?", "Introvert", "Extrovert", "A bit of both"], ["Texting or calling?", "Texting", "Calling"], ["Sweet or savory?", "Sweet", "Savory"], ["Plan everything or go with the flow?", "Plan it", "Go with the flow"], ["City or countryside?", "City", "Countryside"], ["Movie night in or a night out?", "In", "Out"], ["Favorite season?", "Summer", "Rainy season", "Winter"], ["What’s your love language?", "Words", "Quality time", "Gifts", "Helping out", "Touch"], ["Which attracts you more?", "Someone who makes me laugh", "Someone who challenges me"], ["Cook at home or eat out?", "Cook at home", "Eat out"], ["Save money or spend on experiences?", "Save", "Experiences"], ["Quiet night or big party?", "Quiet night", "Big party"], ["Early bird or last-minute person?", "Early bird", "Last-minute"], "What makes you happy?", "What’s your favorite food?", "What’s your favorite place to relax?", "What’s your hobby?", "What’s your favorite movie?", "What’s your favorite music?", "What’s your dream job?", "What’s your favorite color?", "What makes you laugh the most?", "What motivates you?", "What’s your biggest goal right now?", "What’s your favorite weekend activity?", "What excites you?", "What inspires you?", "What matters most in a relationship?", "What makes you feel valued?", "What’s a green flag for you?", "How do you show care?", "What attracts you to people?", "What makes you feel safe?", "What does love mean to you?", "What do you value most?", "What’s your ideal date?", "What’s your favorite holiday spot?", "What’s your dream destination?", "What’s your favorite snack?", "What’s your guilty pleasure?", "What’s your favorite childhood memory?", "What’s the best advice you’ve got?", "What’s your biggest fear?", "What relaxes you?", "What stresses you out?", "What cheers you up?", "What’s your hidden talent?", "What’s on your bucket list?", "What’s your favorite app?", "What makes you unique?", "What’s your biggest strength?", "What’s your biggest lesson in life?", "What makes a connection special?", "What makes you smile instantly?", "What kind of partner do you want?", "What makes you feel appreciated?", "What’s one thing people always get wrong about you?", "What’s something you want but never say out loud?", "What’s one rule you always break?", "What do people do that kills attraction for you?", "If we met at a party, would you have ignored me or looked twice?", "What could you talk about for hours?", "What’s your biggest dream in life?", "What makes you feel most loved?", "What’s something you’ve always wanted to do but never did?", "What’s your idea of a perfect day?", "How do you handle tough times?", "What’s one thing you’re proud of that few people know?", "What small thing instantly lifts your mood?", "What does a healthy, lasting relationship look like to you?", "How do you feel most supported by a partner?", "What’s a red flag in a relationship for you?", "What’s your favorite way to spend time with someone you care about?", "How do you define true love?", "Where would you live if you could go anywhere?", "What are you working on to better yourself?", "What’s the most important lesson life has taught you?", "What’s your favorite way to accidentally lose three hours?", "Besides looks, what makes someone instantly attractive to you?", "If I planned a surprise date, what vibe should I go for?", "What small gesture would make you melt?", "What’s something you want to try but haven’t had the courage to?", "If we escaped somewhere this weekend, where would you go?", "What’s something attractive that most people overlook?", "What’s the funniest reason you’ve ever liked someone?", "What would your ideal date look like if money didn’t matter?", "What’s something you’ve always wanted to do with the right person?", "What little gesture makes you feel special?", "What was your first impression of me?", "What’s your favorite breakfast?", "What’s your favorite way to spend a rainy day?", "What song can’t you stop replaying?", "What’s the last thing that made you laugh out loud?", "What’s your comfort food?", "What show could you rewatch forever?", "What’s your favorite thing about yourself?", "What are you grateful for today?", "What small joy do you look forward to every day?", "What’s a compliment you’ll never forget?", "What’s your dream home like?", "What’s your go-to karaoke song?", "What’s the best gift you’ve ever received?", "What food could you eat every day?", "What’s the weirdest thing you’re scared of?", "What’s your ideal lazy Sunday?", "What place would you love to revisit?", "What one word would your friends use to describe you?", "What talent do you wish you had?", "What’s the best meal you’ve ever had?", "What small thing annoys you?", "What’s the most adventurous thing you’ve done?", "What do you enjoy most about talking with me?", "What’s something you’d love to learn more about?", "What would you do with a free day just for you?", "What makes you feel at home?"];
+const DEF_N=10;
+const $=s=>document.getElementById(s);
+let base='',uid=null,code=null,timer=null,myName='',lastQ=-1,busy=false,lastJson='';
+function show(id){['v-setup','v-home','v-wait','v-play','v-end'].forEach(v=>$(v).hidden=(v!==id));}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function order(c,n){let h=0;for(const ch of c)h=(h*31+ch.charCodeAt(0))|0;const r=rng(h),a=BANK.map((_,i)=>i);for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a.slice(0,n);}
+function store(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v);}catch(e){}}
+function load(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function err(m){$('err').textContent=m||'';}
+async function call(path,method,body){
+  const r=await fetch(base+'/games/'+path+'.json',{method:method,cache:'no-store',headers:{'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});
+  if(!r.ok)throw new Error('http '+r.status);
+  return r.json();
+}
+async function init(){
+  const h=new URLSearchParams(location.hash.slice(1));
+  if(h.get('db'))store('gtk-db',h.get('db'));
+  base=(load('gtk-db')||'').replace(/\/+$/,'');
+  uid=load('gtk-uid');
+  if(!uid){uid='u'+Math.random().toString(36).slice(2,10)+Date.now().toString(36);store('gtk-uid',uid);}
+  myName=load('gtk-name')||'';$('name').value=myName;
+  if(h.get('g'))$('jcode').value=h.get('g').toUpperCase();
+  if(!base){show('v-setup');return;}
+  const saved=load('gtk-code');
+  if(saved){try{const d=await call(saved,'GET');if(d&&d.players&&d.players[uid]){code=saved;start();return;}}catch(e){}store('gtk-code',null);}
+  show('v-home');
+}
+async function saveDb(){
+  let u=$('dburl').value.trim().replace(/\/+$/,'');
+  if(!/^https:\/\/.+/.test(u)){$('err2').textContent='The URL should start with https://';return;}
+  const old=base;base=u;
+  try{await call('test','GET');}catch(e){base=old;$('err2').textContent='Could not reach the database. Check the URL and that the rules allow read and write.';return;}
+  store('gtk-db',u);$('err2').textContent='';show('v-home');
+}
+function start(){
+  if(timer)clearInterval(timer);
+  lastQ=-1;lastJson='';poll();timer=setInterval(poll,1500);
+}
+async function poll(){
+  if(!code)return;
+  try{const d=await call(code,'GET');const j=JSON.stringify(d);if(j!==lastJson){lastJson=j;if(d)render(d);}}catch(e){}
+}
+async function create(){
+  myName=$('name').value.trim();if(!myName){err('Please enter your name.');return;}
+  store('gtk-name',myName);
+  const chars='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let c='';
+  for(let i=0;i<4;i++)c+=chars[Math.floor(Math.random()*chars.length)];
+  try{
+    if(await call(c,'GET')){err('Code clash. Please tap again.');return;}
+    await call(c,'PUT',{created:Date.now(),q:0,n:+$('len').value||DEF_N,players:{[uid]:{name:myName}}});
+  }catch(e){err('Could not create a game. Check the database URL and rules.');return;}
+  code=c;store('gtk-code',code);start();
+}
+async function join(){
+  myName=$('name').value.trim();const c=$('jcode').value.trim().toUpperCase();
+  if(!myName){err('Please enter your name.');return;}
+  if(c.length!==4){err('Enter the 4-character code.');return;}
+  store('gtk-name',myName);
+  try{
+    const d=await call(c,'GET');
+    if(!d){err('No game found with that code.');return;}
+    const p=d.players||{};
+    if(!p[uid]){
+      if(Object.keys(p).length>=2){err('That game already has two players.');return;}
+      await call(c+'/players','PATCH',{[uid]:{name:myName}});
+    }
+    code=c;store('gtk-code',code);start();
+  }catch(e){err('Could not join. Check your connection and try again.');}
+}
+function render(d){
+  const ids=Object.keys(d.players||{});
+  if(ids.length<2){show('v-wait');$('wcode').textContent=code;return;}
+  const q=d.q||0,N=d.n||DEF_N;
+  if(q>=N){show('v-end');return;}
+  show('v-play');
+  const other=ids.find(i=>i!==uid),oname=(d.players[other]||{}).name||'Your partner';
+  $('qn').textContent='Question '+(q+1)+' of '+N;
+  const it=BANK[order(code,N)[q]],isC=Array.isArray(it);
+  $('qt').textContent=isC?it[0]:it;
+  $('free').hidden=isC;$('opts').hidden=!isC;
+  if(q!==lastQ){$('mine').value='';lastQ=q;$('opts').innerHTML='';if(isC)it.slice(1).forEach(o=>{const b=document.createElement('button');b.className='alt';b.textContent=o;b.onclick=()=>send(o);$('opts').appendChild(b);});}
+  $('bar').style.width=(q/N*100)+'%';
+  const A=(d.answers&&d.answers['q'+q])||{},mine=A[uid],theirs=A[other];
+  $('p-answer').hidden=!!mine;
+  $('p-wait').hidden=!(mine&&!theirs);
+  $('p-reveal').hidden=!(mine&&theirs);
+  $('wtxt').textContent='Waiting for '+oname+' to answer…';
+  if(mine&&theirs){
+    $('n1').textContent='You';$('a1').textContent=mine;
+    $('n2').textContent=oname;$('a2').textContent=theirs;
+    $('next').textContent=q+1>=N?'Finish':'Next question';
+  }
+}
+async function send(t){
+  if(!t||busy)return;busy=true;$('submit').disabled=true;
+  try{await call(code+'/answers/q'+lastQ,'PATCH',{[uid]:t});await poll();}catch(e){alert('Could not send your answer. Please try again.');}
+  busy=false;$('submit').disabled=false;
+}
+$('create').onclick=create;
+$('join').onclick=join;
+$('savedb').onclick=saveDb;
+$('chdb').onclick=e=>{e.preventDefault();show('v-setup');$('dburl').value=base;};
+$('submit').onclick=()=>send($('mine').value.trim());
+$('next').onclick=async()=>{
+  if(busy)return;busy=true;
+  try{await call(code,'PATCH',{q:lastQ+1});await poll();}catch(e){}
+  busy=false;
+};
+$('share').onclick=async()=>{
+  const link=location.href.split('#')[0]+'#db='+encodeURIComponent(base)+'&g='+code;
+  const text='Join my Reveal game! Code: '+code;
+  try{if(navigator.share){await navigator.share({title:'Reveal',text:text,url:link});return;}}catch(e){return;}
+  try{await navigator.clipboard.writeText(link);$('share').textContent='Link copied!';}catch(e){prompt('Copy this link:',link);}
+};
+$('again').onclick=()=>{if(timer)clearInterval(timer);timer=null;store('gtk-code',null);code=null;show('v-home');};
+init();
+</script>
+</body>
+</html>
