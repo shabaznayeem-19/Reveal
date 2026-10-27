@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Reveal</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#1d0e17">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Reveal">
 <style>
 :root{--bg:#1d0e17;--card:#2b1624;--ink:#f7eaf0;--mute:#b99aa8;--acc:#ff8aa0;--acc2:#4a2638;--line:#4b2e3e;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}
@@ -65,6 +71,28 @@ button.alt{color:var(--ink);border:1px solid var(--line);background:var(--acc2)}
 #p-answer{background:none;border:0;padding:0}
 #opts button{margin-top:8px}
 .cnt{text-align:right;font-size:13px;color:var(--mute);margin-top:4px}
+.scene{aspect-ratio:843/1264;background:linear-gradient(#e79aa6,#f6a56a 55%,#8f5f4c)}
+.layer{position:absolute;inset:0;animation:breathe 16s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+.scene .bg{object-fit:cover}
+.board{top:10.5%;left:9%;right:9%;background:rgba(36,14,28,.72);border:1px solid rgba(255,255,255,.28);border-radius:20px;padding:14px 12px;backdrop-filter:blur(4px);box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.glow{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:radial-gradient(circle,rgba(255,228,150,.9),rgba(255,228,150,0) 70%);animation:tw 2.4s ease-in-out infinite;pointer-events:none}
+.glow.c{width:64px;height:64px;margin:-32px 0 0 -32px;animation:tw .9s ease-in-out infinite}
+.glow.s{width:140px;height:140px;margin:-70px 0 0 -70px;background:radial-gradient(circle,rgba(255,225,150,.55),rgba(255,225,150,0) 70%);animation:tw 7s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.35;transform:scale(.85)}50%{opacity:1;transform:scale(1.1)}}
+.hrt{position:absolute;top:60%;font-size:18px;opacity:0;animation:rise 6s ease-in infinite;pointer-events:none}
+@keyframes rise{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:.9}100%{transform:translateY(-130px) scale(1.1);opacity:0}}
+.cloud{position:absolute;transform:translate(-50%,-100%);background:#fff;color:#2a1a24;border-radius:26px;padding:9px 14px;max-width:44%;min-width:84px;text-align:center;font-size:14px;line-height:1.3;box-shadow:0 6px 14px rgba(0,0,0,.28);z-index:3;animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
+.cloud small{display:block;font-size:11px;font-weight:700;color:#c0486a;margin-bottom:2px}
+.cloud .t{max-height:150px;overflow-y:auto;word-break:break-word;white-space:pre-wrap}
+.cloud::before{content:"";position:absolute;top:-9px;left:16%;width:30px;height:24px;border-radius:50%;background:#fff;box-shadow:30px -3px 0 1px #fff;z-index:-1}
+.cloud::after{content:"";position:absolute;bottom:-12px;left:50%;width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:6px 9px 0 -3px #fff}
+.cloud.think{animation:pop .45s cubic-bezier(.3,1.6,.5,1),bobc 2.6s ease-in-out .5s infinite}
+.cloud.eager{animation:pop .45s cubic-bezier(.3,1.6,.5,1),wig .8s ease-in-out .5s infinite}
+@keyframes pop{0%{transform:translate(-50%,-100%) scale(.2);opacity:0}100%{transform:translate(-50%,-100%) scale(1);opacity:1}}
+@keyframes bobc{0%,100%{transform:translate(-50%,-100%)}50%{transform:translate(-50%,calc(-100% - 5px))}}
+@keyframes wig{0%,100%{transform:translate(-50%,-100%) rotate(-2deg)}50%{transform:translate(-50%,calc(-100% - 7px)) rotate(2deg)}}
+#p-reveal .ans{display:none}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -115,22 +143,16 @@ button.alt{color:var(--ink);border:1px solid var(--line);background:var(--acc2)}
   <div class="meta"><span id="qn"></span><span id="modeb"></span></div>
   <div class="dots" style="margin-top:6px"><i id="bar"></i></div>
   <div class="scene">
-    <svg class="bg" viewBox="0 0 400 540" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e79aa6"/><stop offset=".55" stop-color="#f6a56a"/><stop offset="1" stop-color="#f7c58a"/></linearGradient></defs>
-      <rect width="400" height="540" fill="url(#sky)"/>
-      <circle cx="345" cy="250" r="22" fill="#ffe3a8"/>
-      <g fill="#6b3550"><rect x="18" y="255" width="30" height="120"/><rect x="58" y="222" width="26" height="153"/><rect x="94" y="268" width="34" height="107"/><rect x="138" y="235" width="22" height="140"/><rect x="170" y="175" width="20" height="200"/><rect x="176" y="146" width="8" height="30"/><rect x="179" y="124" width="2" height="22"/><rect x="200" y="240" width="28" height="135"/><rect x="238" y="205" width="24" height="170"/><rect x="272" y="262" width="34" height="113"/><rect x="316" y="232" width="22" height="143"/><rect x="348" y="270" width="40" height="105"/></g>
-      <line x1="0" y1="392" x2="400" y2="392" stroke="#3b1c2a" stroke-width="22" stroke-dasharray="3 9"/>
-      <rect y="378" width="400" height="6" fill="#3b1c2a"/><rect y="400" width="400" height="140" fill="#8f5f4c"/>
-      <g fill="#35552c"><circle cx="18" cy="330" r="56"/><circle cx="385" cy="338" r="60"/><circle cx="60" cy="395" r="38"/><circle cx="350" cy="400" r="40"/></g>
-      <g fill="#ff7a9a"><circle cx="30" cy="350" r="7"/><circle cx="52" cy="372" r="6"/><circle cx="370" cy="360" r="7"/><circle cx="345" cy="385" r="6"/><circle cx="14" cy="395" r="5"/></g>
-    </svg>
-    <div class="board"><div id="qt"></div></div>
-    <div class="seats">
-      <div class="pc" id="pc-me"></div>
-      <svg class="tbl" viewBox="0 0 100 80" aria-hidden="true"><ellipse cx="50" cy="40" rx="46" ry="9" fill="#3b2230"/><rect x="47" y="46" width="6" height="28" fill="#2b1624"/><ellipse cx="50" cy="76" rx="18" ry="4" fill="#2b1624"/><g fill="#fff4e6"><ellipse cx="25" cy="36" rx="10" ry="4"/><ellipse cx="75" cy="36" rx="10" ry="4"/></g><rect x="46" y="26" width="8" height="12" rx="2" fill="#ffd9a0"/><path class="flame" d="M50 16c3 4 3 7 0 9-3-2-3-5 0-9z" fill="#ffb84d"/></svg>
-      <div class="pc" id="pc-th"></div>
+    <div class="layer">
+      <img class="bg" src="cafe.jpg" alt="" onerror="this.style.display='none'">
+      <i class="glow s" style="left:79%;top:37%"></i>
+      <i class="glow" style="left:13%;top:7%"></i><i class="glow" style="left:25%;top:4.9%;animation-delay:.5s"></i><i class="glow" style="left:38%;top:2.2%;animation-delay:1s"></i>
+      <i class="glow" style="left:69%;top:2.2%;animation-delay:.3s"></i><i class="glow" style="left:80%;top:5.5%;animation-delay:.8s"></i><i class="glow" style="left:93%;top:8.1%;animation-delay:1.4s"></i>
+      <i class="glow c" style="left:50.7%;top:69.6%"></i>
+      <span class="hrt" style="left:48%">❤</span><span class="hrt" style="left:52%;animation-delay:2s">💗</span><span class="hrt" style="left:50%;animation-delay:4s">❤</span>
+      <div class="cloud think" id="cl-me"></div><div class="cloud think" id="cl-th"></div>
     </div>
+    <div class="board"><div id="qt"></div></div>
   </div>
   <div id="p-answer" class="card" hidden>
     <div id="opts"></div>
@@ -265,7 +287,7 @@ function render(d){
     $('mt').hidden=norm(mine)!==norm(theirs);
     $('next').textContent=q+1>=N?'Finish':'Next question';
   }
-  drawStage(d.players[uid]&&d.players[uid].av||'m',op.av||'f',oname,mine,theirs);
+  drawStage(d.players[uid]&&d.players[uid].av||'m',op.av||'f',oname,mine,theirs,showRev);
 }
 function person(g,col){
   const hair=g==='f'?'#5a3a2a':'#2f2a2a';
@@ -278,15 +300,21 @@ function person(g,col){
   +'<path d="M43 64Q50 70 57 64" stroke="#2a2230" stroke-width="2.2" fill="none" stroke-linecap="round"/></g><rect x="12" y="108" width="76" height="12" rx="6" fill="#c9a37c"/></svg>';
 }
 function setP(id,st,t){const e=$(id);e.className='pc '+st;e.querySelector('.bub').textContent=t;}
-function drawStage(meAv,thAv,oname,mine,theirs){
-  const key=meAv+thAv;
-  if(stageKey!==key){stageKey=key;
-    $('pc-me').innerHTML='<div class="bub"></div><div class="fig">'+person(meAv,'#e0527a')+'</div><div class="nm">You</div>';
-    $('pc-th').innerHTML='<div class="bub"></div><div class="fig">'+person(thAv,'#4a90d9')+'</div><div class="nm"></div>';}
-  $('pc-th').querySelector('.nm').textContent=oname;
-  const both=mine&&theirs;
-  setP('pc-me',both?'cheer':mine?'eager':'think',both?'Yay! 🎉':mine?'Done! 👀':'Thinking…');
-  setP('pc-th',both?'cheer':theirs?'eager':'think',both?'Yay! 🎉':theirs?'Done! 👀':'Thinking…');
+function cloud(id,side,name,state,text){
+  const e=$(id);
+  e.style.left=side==='l'?'26%':'75%';e.style.top=side==='l'?'47%':'50%';
+  const key=state+'|'+text;
+  if(e.dataset.k===key)return;e.dataset.k=key;
+  e.className='cloud '+state;
+  e.innerHTML='<small></small><div class="t"></div>';
+  e.firstChild.textContent=name;e.lastChild.textContent=text;
+}
+function drawStage(meAv,thAv,oname,mine,theirs,showRev){
+  const meL=!(meAv==='f'&&thAv==='m'),both=!!(mine&&theirs);
+  const c=(done,ans)=>showRev?['ans',ans]:both?['eager','Ready! 🥁']:done?['eager','Done! 👀']:['think','Thinking… 💭'];
+  const a=c(mine,mine),b=c(theirs,theirs);
+  cloud('cl-me',meL?'l':'r','You',a[0],a[1]);
+  cloud('cl-th',meL?'r':'l',oname,b[0],b[1]);
 }
 function fx(d){
   const q=d.q||0,v=Object.values((d.answers&&d.answers['q'+q])||{});
@@ -326,12 +354,20 @@ function fanfare(){const a=ac();if(!a)return;const t=a.currentTime;[523,659,784,
 function tada(){const a=ac();if(!a)return;const t=a.currentTime;tone(523,t,.2,'triangle',.1);tone(784,t+.15,.4,'triangle',.1);}
 const NOTES=[261.6,329.6,392,523.3,392,329.6,293.7,392];
 function bgmStep(){const a=AC;if(!a||muted||a.state!=='running')return;const t=a.currentTime+0.05;tone(NOTES[step%8],t,0.6,'triangle',0.035);if(step%8===0)tone(130.8,t,1.8,'sine',0.04);step++;}
-function startBgm(){if(!bgmT)bgmT=setInterval(bgmStep,450);}
+let bgmA=null,useFile=false;
+function startTones(){if(!bgmT)bgmT=setInterval(bgmStep,450);}
+function startBgm(){
+  if(!bgmA){bgmA=new Audio('music.mp3');bgmA.loop=true;bgmA.volume=0.35;}
+  bgmA.muted=muted;
+  if(useFile){bgmA.play().catch(()=>{});return;}
+  bgmA.play().then(()=>{useFile=true;}).catch(startTones);
+}
 function confetti(){const c=$('fx'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;c.hidden=false;const cols=['#ff5d8f','#ffd23f','#3bceac','#6a8cff','#ff9f1c'];const P=Array.from({length:140},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,vx:(Math.random()-.5)*4,vy:2+Math.random()*4,s:5+Math.random()*7,r:Math.random()*6,vr:(Math.random()-.5)*.3,c:cols[Math.floor(Math.random()*cols.length)]}));let f=0;(function loop(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.05;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/3,p.s,p.s*.6);x.restore();});if(++f<200)requestAnimationFrame(loop);else{x.clearRect(0,0,c.width,c.height);c.hidden=true;}})();}
 $('mute').textContent=muted?'🔇':'🔊';
-$('mute').onclick=()=>{muted=!muted;store('gtk-mute',muted?'1':'0');$('mute').textContent=muted?'🔇':'🔊';if(!muted){ac();startBgm();}};
+$('mute').onclick=()=>{muted=!muted;store('gtk-mute',muted?'1':'0');$('mute').textContent=muted?'🔇':'🔊';if(bgmA)bgmA.muted=muted;if(!muted){ac();startBgm();}};
 document.addEventListener('pointerdown',()=>{ac();startBgm();},{once:true});
 
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 init();
 </script>
 </body>
