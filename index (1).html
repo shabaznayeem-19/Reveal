@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reveal</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#1d0e17">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Reveal">
+<style>
+:root{--bg:#1d0e17;--card:#2b1624;--ink:#f7eaf0;--mute:#b99aa8;--acc:#ff8aa0;--acc2:#4a2638;--line:#4b2e3e;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+main{max-width:480px;margin:0 auto;padding:20px 18px 40px}
+h1{font-size:26px;margin:8px 0 4px}
+p.sub{color:var(--mute);margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px}
+label{display:block;font-size:14px;color:var(--mute);margin:0 0 6px}
+input,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px}
+textarea{min-height:110px;resize:vertical}
+button{font:inherit;font-weight:600;border:0;border-radius:12px;padding:13px 16px;width:100%;background:var(--acc);color:#fff;margin-top:10px;cursor:pointer}
+button.alt{background:var(--acc2);color:var(--ink)}
+button:disabled{opacity:.5}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.code{font-size:44px;letter-spacing:8px;font-weight:700;text-align:center;color:var(--acc);margin:6px 0}
+.q{font-size:22px;font-weight:650;line-height:1.3}
+.tag{font-size:13px;color:var(--mute);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.ans{border-left:4px solid var(--acc);padding:6px 12px;margin:10px 0;white-space:pre-wrap;word-break:break-word}
+.ans b{display:block;font-size:13px;color:var(--mute);font-weight:600}
+.err{color:#d33;font-size:14px;min-height:20px;margin-top:8px}
+.dots{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:16px}
+.dots i{display:block;height:100%;background:var(--acc);transition:width .3s}
+.stage{display:flex;justify-content:space-around;align-items:flex-end;margin:6px 0 12px}
+.pc{width:44%;text-align:center}
+.bub{display:inline-block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 10px;font-size:13px;margin-bottom:4px;min-height:26px}
+.fig svg{width:100%;max-width:110px;height:auto;overflow:visible}
+.nm{font-size:13px;color:var(--mute)}
+.body{transform-box:fill-box;transform-origin:50% 100%}
+.think .body{animation:sway 2.6s ease-in-out infinite}
+.eager .body{animation:hop .7s ease-in-out infinite}
+.cheer .body{animation:cheer .45s ease-in-out infinite}
+.eyes{transform-box:fill-box;transform-origin:center;animation:blink 4s infinite}
+@keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes cheer{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-14px) scale(1.05)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
+#mute{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);right:10px;width:auto;margin:0;padding:8px 12px;z-index:60;background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.sel{width:100%;font:inherit;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+body{background:radial-gradient(120% 80% at 0% 0%,#4a1a2b 0%,#1d0e17 55%,#140a10 100%) fixed}
+button{color:#2a1020;border-radius:999px}
+button.alt{color:var(--ink);border:1px solid var(--line);background:var(--acc2)}
+.top{display:flex;align-items:center;gap:8px;font-size:26px;font-weight:800;color:var(--acc);margin:6px 0 4px}
+.top svg{fill:var(--acc)}
+.meta{display:flex;justify-content:space-between;color:var(--mute);font-size:14px;margin-top:6px}
+.scene{position:relative;border-radius:28px;overflow:hidden;aspect-ratio:400/540;margin:10px 0 14px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.scene .bg{position:absolute;inset:0;width:100%;height:100%}
+.board{position:absolute;top:5%;left:11%;right:11%;background:linear-gradient(#1b3a2b,#0f2419);border:6px solid #8a5a3c;border-radius:12px;padding:18px 12px;text-align:center;font-weight:700;color:#fff;z-index:2;box-shadow:0 6px 14px rgba(0,0,0,.4)}
+.seats{position:absolute;left:0;right:0;bottom:3%;display:flex;justify-content:space-around;align-items:flex-end;z-index:2}
+.seats .pc{width:36%}
+.seats .fig svg{max-width:130px}
+.seats .nm{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.seats .bub{background:rgba(30,12,22,.85);color:#fff;border:0}
+.tbl{width:26%;margin-bottom:6px}
+.flame{transform-box:fill-box;transform-origin:50% 100%;animation:fl 1s ease-in-out infinite}
+@keyframes fl{0%,100%{transform:scale(1)}50%{transform:scale(1.15,.9)}}
+#p-answer{background:none;border:0;padding:0}
+#opts button{margin-top:8px}
+.cnt{text-align:right;font-size:13px;color:var(--mute);margin-top:4px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<button id="mute" aria-label="Sound on or off">🔊</button>
+<canvas id="fx" hidden></canvas>
+<main>
+<div class="top"><svg viewBox="0 0 24 24" width="30" height="30"><path d="M12 21C5 16 2 12.5 2 8.8 2 6 4.2 4 6.8 4c1.9 0 3.6 1 5.2 3 1.6-2 3.3-3 5.2-3C19.8 4 22 6 22 8.8 22 12.5 19 16 12 21z"/></svg><span>Reveal</span></div>
+<p class="sub" id="sub">Two people, two phones, quick answers.</p>
+
+<section id="v-setup" hidden class="card">
+  <div class="q" style="font-size:19px">One-time setup</div>
+  <p class="sub" style="margin-top:8px">Paste your Firebase Realtime Database URL. Your partner won’t need to: the invite link carries it.</p>
+  <input id="dburl" placeholder="https://your-project-default-rtdb.firebaseio.com" autocapitalize="off" autocomplete="off">
+  <button id="savedb">Save</button>
+  <div class="err" id="err2"></div>
+</section>
+
+<section id="v-home" hidden>
+  <div class="card">
+    <label for="name">Your name</label>
+    <input id="name" maxlength="20" autocomplete="off">
+    <label for="av" style="margin-top:12px">I’m a</label>
+    <select id="av" class="sel"><option value="m">Boy 👦</option><option value="f">Girl 👧</option></select>
+    <label for="mode" style="margin-top:12px">Question style (for a new game)</label>
+    <select id="mode" class="sel"><option value="fun">Light and fun</option><option value="serious">Serious (marriage-minded)</option><option value="mix">Mix of both</option></select>
+    <label for="len" style="margin-top:12px">Questions per game (for a new game)</label>
+    <select id="len" style="width:100%;font:inherit;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)"><option>10</option><option>15</option><option>20</option></select>
+    <button id="create">Start a new game</button>
+    <p class="sub" style="text-align:center;margin:14px 0 0">or join a friend’s game</p>
+    <label for="jcode" style="margin-top:8px">Game code</label>
+    <input id="jcode" maxlength="4" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase;letter-spacing:4px">
+    <button id="join" class="alt">Join game</button>
+    <div class="err" id="err"></div>
+    <p style="text-align:center;margin:6px 0 0"><a href="#" id="chdb" style="color:var(--mute);font-size:14px">Change database URL</a></p>
+  </div>
+</section>
+
+<section id="v-wait" hidden class="card">
+  <div class="tag">Your game code</div>
+  <div class="code" id="wcode"></div>
+  <p class="sub" style="text-align:center">Send your partner the invite link. The game starts when they join.</p>
+  <button id="share">Share invite link</button>
+  <p style="text-align:center;margin:10px 0 0"><a href="#" class="leave" style="color:var(--mute);font-size:14px">Leave game</a></p>
+</section>
+
+<section id="v-play" hidden>
+  <div class="meta"><span id="qn"></span><span id="modeb"></span></div>
+  <div class="dots" style="margin-top:6px"><i id="bar"></i></div>
+  <div class="scene">
+    <svg class="bg" viewBox="0 0 400 540" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e79aa6"/><stop offset=".55" stop-color="#f6a56a"/><stop offset="1" stop-color="#f7c58a"/></linearGradient></defs>
+      <rect width="400" height="540" fill="url(#sky)"/>
+      <circle cx="345" cy="250" r="22" fill="#ffe3a8"/>
+      <g fill="#6b3550"><rect x="18" y="255" width="30" height="120"/><rect x="58" y="222" width="26" height="153"/><rect x="94" y="268" width="34" height="107"/><rect x="138" y="235" width="22" height="140"/><rect x="170" y="175" width="20" height="200"/><rect x="176" y="146" width="8" height="30"/><rect x="179" y="124" width="2" height="22"/><rect x="200" y="240" width="28" height="135"/><rect x="238" y="205" width="24" height="170"/><rect x="272" y="262" width="34" height="113"/><rect x="316" y="232" width="22" height="143"/><rect x="348" y="270" width="40" height="105"/></g>
+      <line x1="0" y1="392" x2="400" y2="392" stroke="#3b1c2a" stroke-width="22" stroke-dasharray="3 9"/>
+      <rect y="378" width="400" height="6" fill="#3b1c2a"/><rect y="400" width="400" height="140" fill="#8f5f4c"/>
+      <g fill="#35552c"><circle cx="18" cy="330" r="56"/><circle cx="385" cy="338" r="60"/><circle cx="60" cy="395" r="38"/><circle cx="350" cy="400" r="40"/></g>
+      <g fill="#ff7a9a"><circle cx="30" cy="350" r="7"/><circle cx="52" cy="372" r="6"/><circle cx="370" cy="360" r="7"/><circle cx="345" cy="385" r="6"/><circle cx="14" cy="395" r="5"/></g>
+    </svg>
+    <div class="board"><div id="qt"></div></div>
+    <div class="seats">
+      <div class="pc" id="pc-me"></div>
+      <svg class="tbl" viewBox="0 0 100 80" aria-hidden="true"><ellipse cx="50" cy="40" rx="46" ry="9" fill="#3b2230"/><rect x="47" y="46" width="6" height="28" fill="#2b1624"/><ellipse cx="50" cy="76" rx="18" ry="4" fill="#2b1624"/><g fill="#fff4e6"><ellipse cx="25" cy="36" rx="10" ry="4"/><ellipse cx="75" cy="36" rx="10" ry="4"/></g><rect x="46" y="26" width="8" height="12" rx="2" fill="#ffd9a0"/><path class="flame" d="M50 16c3 4 3 7 0 9-3-2-3-5 0-9z" fill="#ffb84d"/></svg>
+      <div class="pc" id="pc-th"></div>
+    </div>
+  </div>
+  <div id="p-answer" class="card" hidden>
+    <div id="opts"></div>
+    <div id="free"><textarea id="mine" maxlength="200" style="min-height:90px;border-radius:20px" placeholder="Type your answer…" oninput="document.getElementById('cnt').textContent=this.value.length+'/200'"></textarea><div class="cnt" id="cnt">0/200</div>
+    <button id="submit">Lock it in</button></div>
+  </div>
+  <div id="p-wait" class="card" hidden><span id="wtxt"></span></div>
+  <div id="p-drum" class="card" hidden style="text-align:center;font-size:22px">🥁 Drumroll…</div>
+  <div id="p-reveal" class="card" hidden>
+    <div id="mt" hidden style="text-align:center;font-weight:700;color:var(--acc);font-size:20px;margin-bottom:6px">It’s a match! 💞</div>
+    <div class="ans"><b id="n1"></b><span id="a1"></span></div>
+    <div class="ans"><b id="n2"></b><span id="a2"></span></div>
+    <button id="next">Next question</button>
+  </div>
+<p style="text-align:center;margin:10px 0 0"><a href="#" class="leave" style="color:var(--mute);font-size:14px">Leave game</a></p>
+</section>
+
+<section id="v-end" hidden class="card">
+  <div class="q">That’s all of them! 🎉</div>
+  <p class="sub" style="margin-top:8px">Hope you learned something new about each other.</p>
+  <button id="again">Back to start</button>
+</section>
+</main>
+
+<script>
+const BANK=[["Morning person or night owl?", "Morning", "Night"], ["Coffee or tea?", "Coffee", "Tea", "Neither"], ["Beach or mountains?", "Beach", "Mountains"], ["Dogs or cats?", "Dogs", "Cats", "Both"], ["Introvert or extrovert?", "Introvert", "Extrovert", "A bit of both"], ["Texting or calling?", "Texting", "Calling"], ["Sweet or savory?", "Sweet", "Savory"], ["Plan everything or go with the flow?", "Plan it", "Go with the flow"], ["City or countryside?", "City", "Countryside"], ["Movie night in or a night out?", "In", "Out"], ["Favorite season?", "Summer", "Rainy season", "Winter"], ["What’s your love language?", "Words", "Quality time", "Gifts", "Helping out", "Touch"], ["Which attracts you more?", "Someone who makes me laugh", "Someone who challenges me"], ["Cook at home or eat out?", "Cook at home", "Eat out"], ["Save money or spend on experiences?", "Save", "Experiences"], ["Quiet night or big party?", "Quiet night", "Big party"], ["Early bird or last-minute person?", "Early bird", "Last-minute"], "What makes you happy?", "What’s your favorite food?", "What’s your favorite place to relax?", "What’s your hobby?", "What’s your favorite movie?", "What’s your favorite music?", "What’s your dream job?", "What’s your favorite color?", "What makes you laugh the most?", "What motivates you?", "What’s your biggest goal right now?", "What’s your favorite weekend activity?", "What excites you?", "What inspires you?", "What matters most in a relationship?", "What makes you feel valued?", "What’s a green flag for you?", "How do you show care?", "What attracts you to people?", "What makes you feel safe?", "What does love mean to you?", "What do you value most?", "What’s your ideal date?", "What’s your favorite holiday spot?", "What’s your dream destination?", "What’s your favorite snack?", "What’s your guilty pleasure?", "What’s your favorite childhood memory?", "What’s the best advice you’ve got?", "What’s your biggest fear?", "What relaxes you?", "What stresses you out?", "What cheers you up?", "What’s your hidden talent?", "What’s on your bucket list?", "What’s your favorite app?", "What makes you unique?", "What’s your biggest strength?", "What’s your biggest lesson in life?", "What makes a connection special?", "What makes you smile instantly?", "What kind of partner do you want?", "What makes you feel appreciated?", "What’s one thing people always get wrong about you?", "What’s something you want but never say out loud?", "What’s one rule you always break?", "What do people do that kills attraction for you?", "If we met at a party, would you have ignored me or looked twice?", "What could you talk about for hours?", "What’s your biggest dream in life?", "What makes you feel most loved?", "What’s something you’ve always wanted to do but never did?", "What’s your idea of a perfect day?", "How do you handle tough times?", "What’s one thing you’re proud of that few people know?", "What small thing instantly lifts your mood?", "What does a healthy, lasting relationship look like to you?", "How do you feel most supported by a partner?", "What’s a red flag in a relationship for you?", "What’s your favorite way to spend time with someone you care about?", "How do you define true love?", "Where would you live if you could go anywhere?", "What are you working on to better yourself?", "What’s the most important lesson life has taught you?", "What’s your favorite way to accidentally lose three hours?", "Besides looks, what makes someone instantly attractive to you?", "If I planned a surprise date, what vibe should I go for?", "What small gesture would make you melt?", "What’s something you want to try but haven’t had the courage to?", "If we escaped somewhere this weekend, where would you go?", "What’s something attractive that most people overlook?", "What’s the funniest reason you’ve ever liked someone?", "What would your ideal date look like if money didn’t matter?", "What’s something you’ve always wanted to do with the right person?", "What little gesture makes you feel special?", "What was your first impression of me?", "What’s your favorite breakfast?", "What’s your favorite way to spend a rainy day?", "What song can’t you stop replaying?", "What’s the last thing that made you laugh out loud?", "What’s your comfort food?", "What show could you rewatch forever?", "What’s your favorite thing about yourself?", "What are you grateful for today?", "What small joy do you look forward to every day?", "What’s a compliment you’ll never forget?", "What’s your dream home like?", "What’s your go-to karaoke song?", "What’s the best gift you’ve ever received?", "What food could you eat every day?", "What’s the weirdest thing you’re scared of?", "What’s your ideal lazy Sunday?", "What place would you love to revisit?", "What one word would your friends use to describe you?", "What talent do you wish you had?", "What’s the best meal you’ve ever had?", "What small thing annoys you?", "What’s the most adventurous thing you’ve done?", "What do you enjoy most about talking with me?", "What’s something you’d love to learn more about?", "What would you do with a free day just for you?", "What makes you feel at home?", ["Perfect first date?", "Coffee and talk", "Dinner", "Walk or hike", "Activity or game"], ["Your date is 30 minutes late. You…", "Message and wait", "Leave a bit annoyed", "Don’t mind", "Order a drink and relax"], ["Who should plan the date?", "Me", "Them", "Take turns", "Plan together"], ["Split the bill?", "Always split", "Take turns paying", "One person pays", "Depends"], ["How fast should things move?", "Slow and steady", "Go with the flow", "Pretty quickly"], ["When should you meet each other’s friends?", "Early", "After a few months", "When it’s serious"]];
+const BANK2=[["After marriage, where would you prefer to live?", "Our own place", "With my parents", "Near both families", "Open to discuss"], ["Your partner’s parents visit for a week without notice. You…", "Welcome them happily", "Ask for a heads-up next time", "Feel stressed but manage", "Talk to my partner first"], ["A job offer comes up in another city. You…", "Move together", "Try long distance", "Turn it down", "Decide after a long talk"], ["How should money be handled after marriage?", "One shared account", "Separate accounts", "Shared plus personal", "Decide together later"], ["When you strongly disagree, you usually…", "Talk it out right away", "Cool off first", "Avoid it", "Ask someone trusted"], ["How soon would you like to have kids?", "Within 1–2 years", "In 3–5 years", "Not sure yet", "I don’t want kids"], ["Should both partners work after marriage?", "Yes, both work", "Their own choice", "One focuses on home", "Depends on the situation"], ["A family function is on and you’re exhausted. You…", "Go anyway", "Go for a short while", "Stay home and rest", "Depends on whose family"], ["Your ideal wedding is…", "Big and traditional", "Small and simple", "A destination wedding", "Registered, then a party"], ["Your partner forgets your birthday. You…", "Feel hurt but stay quiet", "Tell them calmly", "Laugh it off", "Plan my own celebration"], ["How much alone time do you need each week?", "Very little", "A few hours", "A full day", "Depends on my week"], ["How important are religion and traditions at home?", "Very important", "Somewhat important", "Not important", "Respect each other’s"], ["A big purchase like a car or home comes up. You…", "Research for weeks", "Decide quickly", "Ask family for advice", "Wait until we’re both sure"], ["Your partner wants a career change that cuts income. You…", "Fully support", "Support with a plan", "Feel worried", "Need a long discussion"], ["How often should you talk during the day?", "Constantly", "A few times", "Once in the evening", "Whenever it feels natural"], ["Household chores should be…", "Split equally", "Split by strengths", "Done with hired help", "Flexible week to week"], ["Friends of the opposite gender after marriage?", "Totally fine", "Fine with boundaries", "Prefer fewer", "Let’s talk about it"], ["Sharing your relationship on social media?", "Share a lot", "Share a little", "Keep it private", "Depends on the moment"], ["Your family disapproves of a decision you both made. You…", "Stand firm together", "Gently convince them", "Find a compromise", "Ask a mediator"], ["Best way to spend a free weekend as a couple?", "Travel", "Stay in and relax", "Family time", "Try something new"], "What do you expect from your partner in the first year of marriage?", "What does a good daily routine at home look like to you?", "What’s one thing you would never compromise on?", "What’s one thing you’re happy to compromise on?", "How would you handle a disagreement with in-laws or family?", "Where do you see yourself in 5 years?", "What would you do if we both had a stressful week with little time for each other?", "What role does family play in your big decisions?", "What worries you most about committing to someone?", "What qualities do you want in a life partner?", "What’s a habit of yours I should know about early?", "How do you like to make up after an argument?", "What does financial security mean to you?", "How do you feel about living away from your hometown?", "What would make you feel truly supported in your career?", "What do you need from me when you’re stressed or upset?"];
+const LIST=m=>m==='serious'?BANK2:m==='mix'?BANK.concat(BANK2):BANK;
+const DEF_N=10;
+const $=s=>document.getElementById(s);
+let cur=null,fresh=true,revealedQ=-1,revealing=false,pinged={},stageKey='',ended=false;
+let base='',uid=null,code=null,timer=null,myName='',lastQ=-1,busy=false,lastJson='';
+function show(id){['v-setup','v-home','v-wait','v-play','v-end'].forEach(v=>$(v).hidden=(v!==id));}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function order(c,n,len){let h=0;for(const ch of c)h=(h*31+ch.charCodeAt(0))|0;const r=rng(h),a=Array.from({length:len},(_,i)=>i);for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a.slice(0,n);}
+function store(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v);}catch(e){}}
+function load(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function err(m){$('err').textContent=m||'';}
+async function call(path,method,body){
+  const r=await fetch(base+'/games/'+path+'.json',{method:method,cache:'no-store',headers:{'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});
+  if(!r.ok)throw new Error('http '+r.status);
+  return r.json();
+}
+async function init(){
+  const h=new URLSearchParams(location.hash.slice(1));
+  if(h.get('db'))store('gtk-db',h.get('db'));
+  base=(load('gtk-db')||'').replace(/\/+$/,'');
+  uid=load('gtk-uid');
+  if(!uid){uid='u'+Math.random().toString(36).slice(2,10)+Date.now().toString(36);store('gtk-uid',uid);}
+  myName=load('gtk-name')||'';$('name').value=myName;$('av').value=load('gtk-av')||'m';
+  if(h.get('g'))$('jcode').value=h.get('g').toUpperCase();
+  if(!base){show('v-setup');return;}
+  const saved=load('gtk-code');
+  if(saved){try{const d=await call(saved,'GET');if(d&&d.players&&d.players[uid]){code=saved;start();return;}}catch(e){}store('gtk-code',null);}
+  show('v-home');
+}
+async function saveDb(){
+  let u=$('dburl').value.trim().replace(/\/+$/,'');
+  if(!/^https:\/\/.+/.test(u)){$('err2').textContent='The URL should start with https://';return;}
+  const old=base;base=u;
+  try{await call('test','GET');}catch(e){base=old;$('err2').textContent='Could not reach the database. Check the URL and that the rules allow read and write.';return;}
+  store('gtk-db',u);$('err2').textContent='';show('v-home');
+}
+function start(){
+  if(timer)clearInterval(timer);
+  lastQ=-1;lastJson='';fresh=true;revealedQ=-1;revealing=false;pinged={};poll();timer=setInterval(poll,1500);
+}
+async function poll(){
+  if(!code)return;
+  try{const d=await call(code,'GET');const j=JSON.stringify(d);if(j!==lastJson){lastJson=j;if(d)render(d);}}catch(e){}
+}
+async function create(){
+  myName=$('name').value.trim();if(!myName){err('Please enter your name.');return;}
+  store('gtk-name',myName);store('gtk-av',$('av').value);
+  const chars='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let c='';
+  for(let i=0;i<4;i++)c+=chars[Math.floor(Math.random()*chars.length)];
+  try{
+    if(await call(c,'GET')){err('Code clash. Please tap again.');return;}
+    await call(c,'PUT',{created:Date.now(),q:0,n:+$('len').value||DEF_N,mode:$('mode').value,players:{[uid]:{name:myName,av:$('av').value}}});
+  }catch(e){err('Could not create a game. Check the database URL and rules.');return;}
+  code=c;store('gtk-code',code);start();
+}
+async function join(){
+  myName=$('name').value.trim();const c=$('jcode').value.trim().toUpperCase();
+  if(!myName){err('Please enter your name.');return;}
+  if(c.length!==4){err('Enter the 4-character code.');return;}
+  store('gtk-name',myName);store('gtk-av',$('av').value);
+  try{
+    const d=await call(c,'GET');
+    if(!d){err('No game found with that code.');return;}
+    const p=d.players||{};
+    if(!p[uid]){
+      if(Object.keys(p).length>=2){err('That game already has two players.');return;}
+      await call(c+'/players','PATCH',{[uid]:{name:myName,av:$('av').value}});
+    }
+    code=c;store('gtk-code',code);start();
+  }catch(e){err('Could not join. Check your connection and try again.');}
+}
+function norm(x){return String(x).trim().toLowerCase();}
+function render(d){
+  cur=d;
+  const ids=Object.keys(d.players||{});
+  if(ids.length<2){show('v-wait');$('wcode').textContent=code;return;}
+  const q=d.q||0,N=d.n||DEF_N,list=LIST(d.mode);
+  if(q>=N){show('v-end');return;}
+  show('v-play');
+  const other=ids.find(i=>i!==uid),op=d.players[other]||{},oname=op.name||'Your partner';
+  $('qn').textContent='Question '+(q+1)+' of '+N;
+  const it=list[order(code,N,list.length)[q]],isC=Array.isArray(it);
+  $('qt').textContent=isC?it[0]:it;
+  $('free').hidden=isC;$('opts').hidden=!isC;
+  if(q!==lastQ){$('mine').value='';$('cnt').textContent='0/200';lastQ=q;$('opts').innerHTML='';if(isC)it.slice(1).forEach(o=>{const b=document.createElement('button');b.className='alt';b.textContent=o;b.onclick=()=>send(o);$('opts').appendChild(b);});}
+  $('modeb').textContent={fun:'✨ Fun',serious:'💍 Serious',mix:'🎲 Mix'}[d.mode||'fun'];$('qt').style.fontSize=($('qt').textContent.length>70?'15px':'19px');
+  $('bar').style.width=(q/N*100)+'%';
+  const A=(d.answers&&d.answers['q'+q])||{},mine=A[uid],theirs=A[other];
+  if(theirs&&!pinged[q]){pinged[q]=true;if(!fresh)ping();}
+  const both=!!(mine&&theirs);
+  if(both&&revealedQ!==q){
+    if(fresh){revealedQ=q;}
+    else if(!revealing){revealing=true;drumroll();setTimeout(()=>{revealing=false;revealedQ=q;fx(cur);render(cur);},1500);}
+  }
+  fresh=false;
+  const showRev=both&&revealedQ===q;
+  $('p-answer').hidden=!!mine;
+  $('p-wait').hidden=!(mine&&!theirs);
+  $('p-drum').hidden=!(both&&!showRev);
+  $('p-reveal').hidden=!showRev;
+  $('wtxt').textContent='Waiting for '+oname+' to answer…';
+  if(showRev){
+    $('n1').textContent='You';$('a1').textContent=mine;
+    $('n2').textContent=oname;$('a2').textContent=theirs;
+    $('mt').hidden=norm(mine)!==norm(theirs);
+    $('next').textContent=q+1>=N?'Finish':'Next question';
+  }
+  drawStage(d.players[uid]&&d.players[uid].av||'m',op.av||'f',oname,mine,theirs);
+}
+function person(g,col){
+  const hair=g==='f'?'#5a3a2a':'#2f2a2a';
+  return '<svg viewBox="0 0 100 120"><ellipse cx="50" cy="74" rx="47" ry="50" fill="#8e5230" opacity=".95"/><ellipse cx="50" cy="74" rx="39" ry="42" fill="#b57a4e" opacity=".95"/><g class="body"><rect x="25" y="68" width="50" height="46" rx="20" fill="'+col+'"/>'
+  +(g==='f'?'<path d="M20 50Q20 16 50 16Q80 16 80 50L80 84Q70 76 70 52L30 52Q30 76 20 84Z" fill="'+hair+'"/>':'')
+  +'<circle cx="50" cy="50" r="26" fill="#f6d2b4"/>'
+  +(g==='f'?'<path d="M24 48Q50 14 76 48Q60 34 24 48Z" fill="'+hair+'"/><circle cx="72" cy="30" r="6" fill="#ff7fa3"/>':'<path d="M24 46Q26 20 50 22Q74 20 76 46Q50 34 24 46Z" fill="'+hair+'"/>')
+  +'<g class="eyes"><ellipse cx="40" cy="53" rx="3.2" ry="4" fill="#2a2230"/><ellipse cx="60" cy="53" rx="3.2" ry="4" fill="#2a2230"/></g>'
+  +'<circle cx="33" cy="61" r="4" fill="#ff9db0" opacity=".6"/><circle cx="67" cy="61" r="4" fill="#ff9db0" opacity=".6"/>'
+  +'<path d="M43 64Q50 70 57 64" stroke="#2a2230" stroke-width="2.2" fill="none" stroke-linecap="round"/></g><rect x="12" y="108" width="76" height="12" rx="6" fill="#c9a37c"/></svg>';
+}
+function setP(id,st,t){const e=$(id);e.className='pc '+st;e.querySelector('.bub').textContent=t;}
+function drawStage(meAv,thAv,oname,mine,theirs){
+  const key=meAv+thAv;
+  if(stageKey!==key){stageKey=key;
+    $('pc-me').innerHTML='<div class="bub"></div><div class="fig">'+person(meAv,'#e0527a')+'</div><div class="nm">You</div>';
+    $('pc-th').innerHTML='<div class="bub"></div><div class="fig">'+person(thAv,'#4a90d9')+'</div><div class="nm"></div>';}
+  $('pc-th').querySelector('.nm').textContent=oname;
+  const both=mine&&theirs;
+  setP('pc-me',both?'cheer':mine?'eager':'think',both?'Yay! 🎉':mine?'Done! 👀':'Thinking…');
+  setP('pc-th',both?'cheer':theirs?'eager':'think',both?'Yay! 🎉':theirs?'Done! 👀':'Thinking…');
+}
+function fx(d){
+  const q=d.q||0,v=Object.values((d.answers&&d.answers['q'+q])||{});
+  if(v.length>=2&&norm(v[0])===norm(v[1])){confetti();fanfare();}else tada();
+}
+async function send(t){
+  if(!t||busy)return;busy=true;$('submit').disabled=true;
+  try{await call(code+'/answers/q'+lastQ,'PATCH',{[uid]:t});await poll();}catch(e){alert('Could not send your answer. Please try again.');}
+  busy=false;$('submit').disabled=false;
+}
+$('create').onclick=create;
+$('join').onclick=join;
+$('savedb').onclick=saveDb;
+$('chdb').onclick=e=>{e.preventDefault();show('v-setup');$('dburl').value=base;};
+$('submit').onclick=()=>send($('mine').value.trim());
+$('next').onclick=async()=>{
+  if(busy)return;busy=true;
+  try{await call(code,'PATCH',{q:lastQ+1});await poll();}catch(e){}
+  busy=false;
+};
+$('share').onclick=async()=>{
+  const link=location.href.split('#')[0]+'#db='+encodeURIComponent(base)+'&g='+code;
+  const text='Join my Reveal game! Code: '+code;
+  try{if(navigator.share){await navigator.share({title:'Reveal',text:text,url:link});return;}}catch(e){return;}
+  try{await navigator.clipboard.writeText(link);$('share').textContent='Link copied!';}catch(e){prompt('Copy this link:',link);}
+};
+function leave(e){if(e)e.preventDefault();if(timer)clearInterval(timer);timer=null;store('gtk-code',null);code=null;show('v-home');}
+document.querySelectorAll('.leave').forEach(a=>a.onclick=leave);
+$('again').onclick=()=>{if(timer)clearInterval(timer);timer=null;store('gtk-code',null);code=null;show('v-home');};
+let AC=null,muted=load('gtk-mute')==='1',bgmT=null,step=0,NB=null;
+function ac(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();}catch(e){}return AC;}
+function tone(f,t0,dur,type,vol){const a=ac();if(!a||muted)return;const o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.value=f;g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(vol,t0+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);o.connect(g);g.connect(a.destination);o.start(t0);o.stop(t0+dur+0.05);}
+function noise(t0,dur,vol){const a=ac();if(!a||muted)return;if(!NB){NB=a.createBuffer(1,Math.floor(a.sampleRate*0.2),a.sampleRate);const dd=NB.getChannelData(0);for(let i=0;i<dd.length;i++)dd[i]=Math.random()*2-1;}const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=NB;f.type='bandpass';f.frequency.value=180;g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);s.connect(f);f.connect(g);g.connect(a.destination);s.start(t0);s.stop(t0+dur);}
+function ping(){const a=ac();if(!a)return;const t=a.currentTime;tone(880,t,.18,'sine',.15);tone(1318,t+.12,.3,'sine',.15);}
+function drumroll(){const a=ac();if(!a)return;const t=a.currentTime;for(let i=0;i<24;i++)noise(t+i*0.06,0.08,0.15+i*0.02);noise(t+1.45,0.3,0.7);}
+function fanfare(){const a=ac();if(!a)return;const t=a.currentTime;[523,659,784,1047,784,1047].forEach((f,i)=>tone(f,t+i*.12,.35,'triangle',.12));tone(1568,t+.8,.8,'sine',.1);}
+function tada(){const a=ac();if(!a)return;const t=a.currentTime;tone(523,t,.2,'triangle',.1);tone(784,t+.15,.4,'triangle',.1);}
+const NOTES=[261.6,329.6,392,523.3,392,329.6,293.7,392];
+function bgmStep(){const a=AC;if(!a||muted||a.state!=='running')return;const t=a.currentTime+0.05;tone(NOTES[step%8],t,0.6,'triangle',0.035);if(step%8===0)tone(130.8,t,1.8,'sine',0.04);step++;}
+function startBgm(){if(!bgmT)bgmT=setInterval(bgmStep,450);}
+function confetti(){const c=$('fx'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;c.hidden=false;const cols=['#ff5d8f','#ffd23f','#3bceac','#6a8cff','#ff9f1c'];const P=Array.from({length:140},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,vx:(Math.random()-.5)*4,vy:2+Math.random()*4,s:5+Math.random()*7,r:Math.random()*6,vr:(Math.random()-.5)*.3,c:cols[Math.floor(Math.random()*cols.length)]}));let f=0;(function loop(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.05;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/3,p.s,p.s*.6);x.restore();});if(++f<200)requestAnimationFrame(loop);else{x.clearRect(0,0,c.width,c.height);c.hidden=true;}})();}
+$('mute').textContent=muted?'🔇':'🔊';
+$('mute').onclick=()=>{muted=!muted;store('gtk-mute',muted?'1':'0');$('mute').textContent=muted?'🔇':'🔊';if(!muted){ac();startBgm();}};
+document.addEventListener('pointerdown',()=>{ac();startBgm();},{once:true});
+
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+init();
+</script>
+</body>
+</html>
